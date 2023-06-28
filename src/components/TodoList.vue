@@ -1,25 +1,26 @@
 <template>
   <div>
-    <h1>Todo List</h1>
+    <h1>Мененджер задач</h1>
     <form @submit.prevent="addTask" class="task-form">
       <div class="input-wrapper">
-        <label for="taskName" class="input-label">Task Name:</label>
+        <label for="taskName" class="input-label">Название</label>
         <input v-model="taskName" id="taskName" type="text" class="input-field">
       </div>
       <div class="input-wrapper">
-        <label for="taskDescription" class="input-label">Task Description:</label>
+        <label for="taskDescription" class="input-label">Описание</label>
         <textarea v-model="taskDescription" id="taskDescription" class="input-field"></textarea>
       </div>
-      <button type="submit" class="button">Add Task</button>
+      <button type="submit" class="button">{{ editIndex !== -1 ? 'Edit Task' : 'Добавить' }}</button> 
     </form>
     <ul class="task-list">
       <li v-for="(task, index) in tasks" :key="index" class="task-item">
         <h3>{{ task.name }}</h3>
         <p>{{ task.description }}</p>
-        <button @click="removeTask(index)" class="button">Delete Task</button>
+        <button @click="removeTask(index)" class="button delete-button">&#10005;</button>
+        <button @click="editTask(index)" class="button edit-button">Редактировать</button> 
       </li>
     </ul>
-    <button @click="goToHome" class="button go-home-btn">Go to Home</button>
+    <button @click="goToHome" class="button go-home-btn">Вернуться на домашнюю страницу</button>
   </div>
 </template>
 
@@ -29,7 +30,8 @@ export default {
     return {
       taskName: '',
       taskDescription: '',
-      tasks: [] // Сохранение задач
+      tasks: [], // Сохранение задач
+      editIndex: -1 // Индекс задачи для редактирования
     };
   },
   created() {
@@ -42,7 +44,12 @@ export default {
   methods: {
     addTask() {
       if (this.taskName && this.taskDescription) {
-        this.tasks.push({ name: this.taskName, description: this.taskDescription });
+        if (this.editIndex !== -1) {
+          this.tasks[this.editIndex] = { name: this.taskName, description: this.taskDescription };
+          this.editIndex = -1; // Сброс индекса редактирования
+        } else {
+          this.tasks.push({ name: this.taskName, description: this.taskDescription });
+        }
         this.taskName = '';
         this.taskDescription = '';
         // Сохраняем задачи в localStorage
@@ -53,6 +60,12 @@ export default {
       this.tasks.splice(index, 1);
       // Обновляем сохраненные задачи в localStorage
       localStorage.setItem('tasks', JSON.stringify(this.tasks));
+    },
+    editTask(index) {
+      const task = this.tasks[index];
+      this.taskName = task.name;
+      this.taskDescription = task.description;
+      this.editIndex = index;
     },
     goToHome() {
       this.$router.push('/');
@@ -86,12 +99,13 @@ export default {
   padding: 10px;
   background-color: #f2f2f2;
   border-radius: 4px;
+  position: relative; /* добавлено для положения кнопок */
 }
 
 .task-item h3 {
   margin: 0;
   font-size: 25px;
-}
+  }
 
 .task-item p {
   margin: 0;
@@ -112,6 +126,17 @@ export default {
   text-decoration: none;
   border-radius: 4px;
   margin-top: 10px;
+}
+
+.delete-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #ff0000;
 }
 
 .go-home-btn {

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>Welcome to the Home page</h1>
-    <router-link to="/todo-list" class="button">Go to Todo List</router-link>
+    <h1>Добро пожаловать на главную страницу</h1>
+    <router-link to="/todo-list" class="button">Перейти к списку задач</router-link>
   </div>
 </template>
 
